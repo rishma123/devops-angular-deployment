@@ -26,13 +26,16 @@ This project demonstrates industry-standard DevOps and cloud deployment practice
 
 ## 🏗 Architecture
 
-Developer Push → GitHub → GitHub Actions
-│
-├── Install & Build Angular App
-├── Upload dist/ to S3 bucket
-└── Invalidate CloudFront CDN cache
-▼
+Developer Push
+      ↓
+GitHub → GitHub Actions
+      │
+      ├── Install & Build Angular App
+      ├── Upload dist/ to S3 bucket
+      └── Invalidate CloudFront CDN cache
+      ↓
 Users access the application via CloudFront URL
+
 
 ---
 
@@ -67,7 +70,7 @@ Build for production
 ng build --configuration production
 
 Build output location
-dist/portfolio-final/browser/
+dist/devops-angular-deployment/browser/
 
 🤖 CI/CD Pipeline
 
