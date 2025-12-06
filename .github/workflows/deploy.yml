@@ -10,39 +10,49 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repo
+      # 1. Checkout
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      # Remove all old caches — FORCE CLEAN BUILD
-      - name: Remove old node_modules & npm cache
+      # 2. Disable ALL caches (important!)
+      - name: Remove all caches
         run: |
           rm -rf node_modules
           rm -f package-lock.json
-          rm -rf ~/.npm
 
-      - name: Setup Node.js
+      # 3. Install Node
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 20
+          cache: 'false'
 
-      - name: Install Dependencies fresh
-        run: npm install
+      # 4. Fresh install
+      - name: Install dependencies
+        run: npm install --no-cache
 
-      - name: Show PostCSS Config
+      # 5. Verify tailwind config
+      - name: Show PostCSS config
         run: cat postcss.config.js
 
-      - name: Build Angular App
-        run: npm run build
+      # 6. Build Angular
+      - name: Build Angular project
+        run: npm run build --if-present
+        env:
+          NODE_ENV: production
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
+      # 7. Upload to S3
+      - name: Upload to S3
+        run: aws s3 sync dist/portfolio-final/browser s3://rishma-portfolio-site --delete
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: eu-central-1
 
-      - name: Sync files to S3
-        run: aws s3 sync ./dist/portfolio-final/browser s3://rishma-portfolio-site --delete
-
-      - name: CloudFront Cache Invalidation
+      # 8. Invalidate CloudFront
+      - name: CloudFront Invalidation
         run: aws cloudfront create-invalidation --distribution-id EXQIR3MGHO7CU --paths "/*"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: eu-central-1
