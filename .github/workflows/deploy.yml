@@ -10,38 +10,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout
+      # Checkout the repo
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # 2. Disable ALL caches (important!)
-      - name: Remove all caches
+      # Force delete ALL node_modules + lock file
+      - name: Clean install folders
         run: |
           rm -rf node_modules
           rm -f package-lock.json
 
-      # 3. Install Node
+      # Install Node (NO CACHE FLAG)
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: 'false'
 
-      # 4. Fresh install
+      # Fresh install
       - name: Install dependencies
-        run: npm install --no-cache
+        run: npm install
 
-      # 5. Verify tailwind config
-      - name: Show PostCSS config
+      # Show PostCSS config (debug)
+      - name: Debug postcss config
         run: cat postcss.config.js
 
-      # 6. Build Angular
-      - name: Build Angular project
-        run: npm run build --if-present
-        env:
-          NODE_ENV: production
+      # Build Angular project
+      - name: Build Angular
+        run: npm run build
 
-      # 7. Upload to S3
+      # Upload to S3
       - name: Upload to S3
         run: aws s3 sync dist/portfolio-final/browser s3://rishma-portfolio-site --delete
         env:
@@ -49,8 +46,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-central-1
 
-      # 8. Invalidate CloudFront
-      - name: CloudFront Invalidation
+      # CloudFront cache invalidation
+      - name: CloudFront Invalidate
         run: aws cloudfront create-invalidation --distribution-id EXQIR3MGHO7CU --paths "/*"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
