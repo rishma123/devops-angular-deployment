@@ -13,26 +13,26 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: Remove ALL old cache (Tailwind v3 → v4 fix)
+        run: |
+          rm -rf node_modules
+          rm -f package-lock.json
+          rm -rf ~/.npm
+          echo "Old cache removed."
+
+      - name: Install Node.js 20
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      - name: Install dependencies
+      - name: Install Dependencies (fresh)
         run: npm install
 
-      - name: Force Tailwind v4 PostCSS config
-        run: |
-          echo "module.exports = { plugins: { '@tailwindcss/postcss': {} } };" > postcss.config.js
-          echo '@import "tailwindcss";' > src/styles.css
+      - name: Show PostCSS config (debug)
+        run: cat postcss.config.js
 
-      - name: Build Angular project
+      - name: Build Angular Project
         run: npm run build
-
-      - name: Install AWS CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y awscli
 
       - name: Upload to S3
         run: |
@@ -42,9 +42,11 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-central-1
 
-      - name: Invalidate CloudFront Cache
+      - name: CloudFront Cache Invalidation
         run: |
-          aws cloudfront create-invalidation --distribution-id EXQIR3MGHO7CU --paths "/*"
+          aws cloudfront create-invalidation \
+            --distribution-id EXQIR3MGHO7CU \
+            --paths "/*"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
