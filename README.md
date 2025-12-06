@@ -1,59 +1,124 @@
-# PortfolioFinal
+# DevOps Deployment Pipeline for Angular Application
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.2.
+This project demonstrates a complete **DevOps pipeline** for building and deploying a static Angular application using:
 
-## Development server
+- **GitHub Actions (CI/CD)**
+- **AWS S3 (Static Hosting)**
+- **AWS CloudFront (CDN)**
+- **AWS IAM (Secure Deployment)**
 
-To start a local development server, run:
+It showcases real-world DevOps workflows including automated builds, cloud deployment, CDN caching, and secure secrets management.
+
+---
+
+## 🚀 Project Overview
+
+This repository contains:
+
+- A production-ready Angular application.
+- A fully automated CI/CD pipeline.
+- Deployment to AWS S3 with CloudFront global CDN.
+- Automatic cache invalidation on every push to `main`.
+
+This project demonstrates industry-standard cloud deployment practices.
+
+---
+
+## 🏗 Architecture
+
+Developer Push → GitHub → GitHub Actions
+│
+├── Install & Build Angular App
+├── Upload dist/ to S3 bucket
+└── Invalidate CloudFront CDN cache
+│
+▼
+Users access via CloudFront URL
+
+
+---
+
+## 🛠 Technologies Used
+
+### DevOps & Cloud
+- **AWS S3**
+- **AWS CloudFront**
+- **AWS IAM**
+- **GitHub Actions**
+
+### Frontend
+- **Angular 17+**
+- **CSS (Custom styling)**
+
+### Tooling
+- **Node.js 20**
+- **Angular CLI**
+- **NPM**
+
+---
+
+## 🔧 Run Locally
 
 ```bash
-ng serve
-```
+npm install
+ng serve --open
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Build for Production
+ng build --configuration production
 
-## Code scaffolding
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Output location:
 
-```bash
-ng generate component component-name
-```
+dist/portfolio-final/browser/
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+🚀 CI/CD Pipeline
 
-```bash
-ng generate --help
-```
+Pipeline file:
 
-## Building
+.github/workflows/deploy.yml
 
-To build the project run:
+The workflow automatically:
 
-```bash
-ng build
-```
+Installs Node.js
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Installs dependencies
 
-## Running unit tests
+Builds Angular
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+Deploys build files to AWS S3
 
-```bash
-ng test
-```
+Invalidates CloudFront cache
 
-## Running end-to-end tests
+This ensures the website updates instantly worldwide.
 
-For end-to-end (e2e) testing, run:
+🔐 GitHub Secrets Required
+Secret Name	Purpose
+AWS_ACCESS_KEY_ID	IAM access key
+AWS_SECRET_ACCESS_KEY	IAM secret key
+AWS_REGION	ex: eu-central-1
+📦 Deployment Output
 
-```bash
-ng e2e
-```
+Your application becomes available globally through CloudFront, giving:
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Ultra-fast load times
 
-## Additional Resources
+Global CDN caching
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Automatic invalidation on deploy
+
+CloudFront distributes your Angular app at a stable public URL.
+
+🧩 Project Structure
+src/
+ ├── app/
+ │    ├── app.html
+ │    ├── app.css
+ │    ├── app.ts
+ │    ├── app.routes.ts
+ │
+ ├── assets/
+ │    └── icons/
+ │
+ ├── styles.css
+ ├── main.ts
+ └── index.html
