@@ -16,29 +16,42 @@ jobs:
       - name: Clear Angular & Node cache
         run: rm -rf node_modules .angular package-lock.json
 
-      - name: Install Node
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      - name: Install dependencies (fresh)
+      - name: Install dependencies
         run: npm install
 
-      - name: Verify PostCSS config
-        run: cat postcss.config.js
+      # ---- FIX TAILWIND ANGULAR BUILD ----
+      - name: Ensure PostCSS config
+        run: |
+          echo "module.exports = { plugins: { '@tailwindcss/postcss': {} } };" > postcss.config.js
+          cat postcss.config.js
 
       - name: Build Angular project
         run: npm run build
 
-      - name: Sync files to S3
-        run: aws s3 sync dist/portfolio-final/browser s3://rishma-portfolio-site --delete
+      # ---- INSTALL AWS CLI ----
+      - name: Install AWS CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y awscli
+
+      # ---- DEPLOY TO S3 ----
+      - name: Upload to S3
+        run: |
+          aws s3 sync dist/portfolio-final/browser s3://rishma-portfolio-site --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-central-1
 
-      - name: CloudFront cache invalidation
-        run: aws cloudfront create-invalidation --distribution-id EXQIR3MGHO7CU --paths "/*"
+      # ---- INVALIDATE CLOUDFRONT ----
+      - name: Invalidate CloudFront Cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id EXQIR3MGHO7CU --paths "/*"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
