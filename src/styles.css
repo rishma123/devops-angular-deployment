@@ -1,6 +1,21 @@
 @import "tailwindcss";
 
+/* Global styles */
 body {
   @apply bg-[#0a0a0a] text-gray-200;
   font-family: 'Inter', sans-serif;
+}
+
+/* Optional animation */
+.fade-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.7s ease forwards;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

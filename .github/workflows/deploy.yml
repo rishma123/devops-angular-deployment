@@ -6,48 +6,43 @@ on:
       - main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout Repo
         uses: actions/checkout@v3
 
-      - name: Reset environment
+      # Remove all old caches — FORCE CLEAN BUILD
+      - name: Remove old node_modules & npm cache
         run: |
           rm -rf node_modules
+          rm -f package-lock.json
           rm -rf ~/.npm
-          rm -rf ~/.cache
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: "npm"
 
-      - name: Install Tailwind + PostCSS (forced fresh)
-        run: |
-          npm install -D tailwindcss@latest @tailwindcss/postcss@latest postcss@latest
-
-      - name: Install dependencies
+      - name: Install Dependencies fresh
         run: npm install
 
-      - name: Show PostCSS config
+      - name: Show PostCSS Config
         run: cat postcss.config.js
 
-      - name: Build Angular project
+      - name: Build Angular App
         run: npm run build
 
-      - name: Sync files to S3
-        run: aws s3 sync dist/portfolio-final/browser s3://rishma-portfolio-site --delete
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: eu-central-1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
 
-      - name: Invalidate CloudFront
+      - name: Sync files to S3
+        run: aws s3 sync ./dist/portfolio-final/browser s3://rishma-portfolio-site --delete
+
+      - name: CloudFront Cache Invalidation
         run: aws cloudfront create-invalidation --distribution-id EXQIR3MGHO7CU --paths "/*"
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: eu-central-1
