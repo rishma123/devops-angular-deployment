@@ -74,3 +74,48 @@ dist/portfolio-final/browser/
 Pipeline file:
 
 .github/workflows/deploy.yml
+
+The CI/CD workflow automatically:
+
+Installs Node.js
+
+Installs dependencies
+
+Builds Angular production files
+
+Deploys the build output to AWS S3
+
+Invalidates CloudFront CDN cache
+
+This ensures the website updates instantly worldwide.
+
+🔐 GitHub Secrets Required
+Secret Name	Purpose
+AWS_ACCESS_KEY_ID	IAM access key
+AWS_SECRET_ACCESS_KEY	IAM secret key
+AWS_REGION	Region (ex: eu-central-1)
+🌍 Deployment Output
+
+Your application is deployed globally via AWS CloudFront, providing:
+
+Fast CDN delivery
+
+Automatic caching + invalidation
+
+A stable public CloudFront URL
+
+🧩 Project Structure
+src/
+ ├── app/
+ │    ├── app.html
+ │    ├── app.css
+ │    ├── app.ts
+ │    ├── app.routes.ts
+ │
+ ├── assets/
+ │    └── icons/
+ │
+ ├── styles.css
+ ├── index.html
+ └── main.ts
+
