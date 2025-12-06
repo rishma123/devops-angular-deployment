@@ -1,42 +1,45 @@
-name: Deploy Portfolio to AWS
+name: Deploy Portfolio
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: Clear Angular & Node cache
+        run: rm -rf node_modules .angular package-lock.json
+
+      - name: Install Node
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: 20
 
-      - name: Install Dependencies
+      - name: Install dependencies (fresh)
         run: npm install
 
-      - name: Build Angular App
-        run: npm run build --if-present
+      - name: Verify PostCSS config
+        run: cat postcss.config.js
 
-      - name: Upload to S3
-        run: |
-          aws s3 sync dist/portfolio-final/browser s3://rishma-portfolio-site --delete
+      - name: Build Angular project
+        run: npm run build
+
+      - name: Sync files to S3
+        run: aws s3 sync dist/portfolio-final/browser s3://rishma-portfolio-site --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: "eu-central-1"
+          AWS_REGION: eu-central-1
 
-      - name: Invalidate CloudFront Cache
-        run: |
-          aws cloudfront create-invalidation \
-            --distribution-id EXQIR3MGHO7CU \
-            --paths "/*"
+      - name: CloudFront cache invalidation
+        run: aws cloudfront create-invalidation --distribution-id EXQIR3MGHO7CU --paths "/*"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: "eu-central-1"
+          AWS_REGION: eu-central-1
