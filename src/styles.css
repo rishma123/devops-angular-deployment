@@ -2,6 +2,7 @@
 
 /* Global styles */
 body {
-  @apply bg-[#0a0a0a] text-gray-200;
   font-family: 'Inter', sans-serif;
+  background: #0a0a0a;
+  color: #e5e5e5;
 }

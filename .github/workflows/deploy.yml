@@ -13,9 +13,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Clear Angular & Node cache
-        run: rm -rf node_modules .angular package-lock.json
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -24,22 +21,19 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # ---- FIX TAILWIND ANGULAR BUILD ----
-      - name: Ensure PostCSS config
+      - name: Force Tailwind v4 PostCSS config
         run: |
           echo "module.exports = { plugins: { '@tailwindcss/postcss': {} } };" > postcss.config.js
-          cat postcss.config.js
+          echo '@import "tailwindcss";' > src/styles.css
 
       - name: Build Angular project
         run: npm run build
 
-      # ---- INSTALL AWS CLI ----
       - name: Install AWS CLI
         run: |
           sudo apt-get update
           sudo apt-get install -y awscli
 
-      # ---- DEPLOY TO S3 ----
       - name: Upload to S3
         run: |
           aws s3 sync dist/portfolio-final/browser s3://rishma-portfolio-site --delete
@@ -48,7 +42,6 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-central-1
 
-      # ---- INVALIDATE CLOUDFRONT ----
       - name: Invalidate CloudFront Cache
         run: |
           aws cloudfront create-invalidation --distribution-id EXQIR3MGHO7CU --paths "/*"
