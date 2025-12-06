@@ -13,10 +13,9 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Reset environment (very important!)
+      - name: Reset environment
         run: |
           rm -rf node_modules
-          rm -f package-lock.json
           rm -rf ~/.npm
           rm -rf ~/.cache
 
@@ -26,11 +25,11 @@ jobs:
           node-version: 20
           cache: "npm"
 
-      - name: Install latest Tailwind & PostCSS plugin (forced clean)
+      - name: Install Tailwind + PostCSS (forced fresh)
         run: |
           npm install -D tailwindcss@latest @tailwindcss/postcss@latest postcss@latest
 
-      - name: Install app dependencies
+      - name: Install dependencies
         run: npm install
 
       - name: Show PostCSS config
@@ -39,7 +38,7 @@ jobs:
       - name: Build Angular project
         run: npm run build
 
-      - name: Upload to S3
+      - name: Sync files to S3
         run: aws s3 sync dist/portfolio-final/browser s3://rishma-portfolio-site --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
